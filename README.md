@@ -1,2 +1,2 @@
-# Diplom
-My students works
+# scripts
+my scripts
