@@ -25,13 +25,16 @@ for item in ${user[*]}; do
     statuser="$(ald-admin user-list | grep -x "$item")"
     # echo "$item"
     if [ "$stat" == "$item" ]; then
-        echo "$item" exists
+        echo "$item" exists "$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+        ald-admin group-rm 
     else
         ald-admin group-add "$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
         echo creat "$item" group
     fi
     if [ "$statuser" == "$item" ]; then
     echo "$item" exists
+        ald-admin user-rm "$item" --group="$item" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"/"$item"
+
     else
     ald-admin user-add "$item" --group="$item" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"/"$item"
      echo creat "$item" user
@@ -45,6 +48,8 @@ statusertr="$(ald-admin user-list | grep -x "$item")"
 
 if [ "$grouptr" == "$stattr" ]; then
     echo "$stattr" exist
+    ald-admin group-rm "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+
 else
 ald-admin group-add "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 fi
@@ -64,6 +69,8 @@ echo "$host" !!!!!!!!!!!!!!!!!
 
 if [ "$host""$doman" == "$stathost" ]; then
     echo "$host" exist
+    ald-admin host-rm "$host" --host-desc="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+
 else
 ald-admin host-add "$host" --host-desc="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 fi
@@ -71,6 +78,8 @@ done
 stathostkom="$(ald-admin host-list | grep -x "$aldHost"kom"$doman")"
 if [ "$aldHost"kom"$doman" == "$stathostkom" ]; then
     echo "$aldHost"kom exist
+    ald-admin host-rm "$aldHost"kom --host-desc="$aldHost"kom --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+
 else
 ald-admin host-add "$aldHost"kom --host-desc="$aldHost"kom --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 
