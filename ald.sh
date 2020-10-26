@@ -1,10 +1,11 @@
 #!/bin/bash
-user=(secadmin komandir operator1 operator2 operator3 deshifrovshik1 deshifrovshik2 deshifrovshik3 shturman nachraz) 
+user=(secadmin komandir operator1 operator2 operator3 deshifrovshik1 deshifrovshik2 deshifrovshik3 shturman nachraz komandir_tr operator1_tr operator2_tr operator3_tr deshifrovshik1_tr deshifrovshik2_tr deshifrovshik3_tr shturman_tr nachraz_tr) 
 usertr=(komandir_tr operator1_tr operator2_tr operator3_tr deshifrovshik1_tr deshifrovshik2_tr deshifrovshik3_tr shturman_tr nachraz_tr)
 aldHomedir="/var/run/ald_home"
 grouptr="TrainingUsers"
-module="npu"
-aldHost="$module"-arm
+module="npo"
+armHost="$module"-arm
+kvsHost="$module"-kvs
 num=(01 02 03 04)
 doman=".orion"
 PublicFolderPath="/ald_export_home/publicfolder"
@@ -25,15 +26,13 @@ for item in ${user[*]}; do
     statuser="$(ald-admin user-list | grep -x "$item")"
     # echo "$item"
     if [ "$stat" == "$item" ]; then
-        echo "$item" exists "$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
-        ald-admin group-rm 
+        echo "$item" exists "$item" 
     else
         ald-admin group-add "$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
         echo creat "$item" group
     fi
     if [ "$statuser" == "$item" ]; then
     echo "$item" exists
-        ald-admin user-rm "$item" --group="$item" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"/"$item"
 
     else
     ald-admin user-add "$item" --group="$item" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"/"$item"
@@ -42,45 +41,67 @@ for item in ${user[*]}; do
     fi
     # echo "$stat"
 done
-for item in ${usertr[*]}; do
-stattr="$(ald-admin group-list | grep -x "$grouptr")"
-statusertr="$(ald-admin user-list | grep -x "$item")"
+# for item in ${usertr[*]}; do
+# stattr="$(ald-admin group-list | grep -x "$grouptr")"
+# statusertr="$(ald-admin user-list | grep -x "$item")"
 
-if [ "$grouptr" == "$stattr" ]; then
-    echo "$stattr" exist
-    ald-admin group-rm "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+# if [ "$grouptr" == "$stattr" ]; then
+#     echo "$stattr" exist
+#     ald-admin group-rm "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 
-else
-ald-admin group-add "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
-fi
-if [ "$item" == "$statusertr" ]; then
-    echo "$item" exist
-      ald-admin user-rm "$item"  --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+# else
+# ald-admin group-add "$grouptr" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+# fi
+# if [ "$item" == "$statusertr" ]; then
+#     echo "$item" exist
+#       ald-admin user-rm "$item"  --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 
-else
-  ald-admin user-add "$item" --group="$grouptr" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"-training/"$item"
-fi
-done
+# else
+#   ald-admin user-add "$item" --group="$grouptr" --login-shell=/bin/bash --full-name="$item" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin --policy=orion --home="$aldHomedir"-training/"$item"
+# fi
+# done
 
 for i in ${num[*]}; do
-host="$aldHost""$i"
+host="$armHost""$i"
 stathost="$(ald-admin host-list | grep -x "$host""$doman")"
 echo "$host" !!!!!!!!!!!!!!!!!
 
 if [ "$host""$doman" == "$stathost" ]; then
     echo "$host" exist
-    ald-admin host-rm "$host" --host-desc="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 
 else
 ald-admin host-add "$host" --host-desc="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 fi
 done
 stathostkom="$(ald-admin host-list | grep -x "$aldHost"kom"$doman")"
-if [ "$aldHost"kom"$doman" == "$stathostkom" ]; then
-    echo "$aldHost"kom exist
-    ald-admin host-rm "$aldHost"kom --host-desc="$aldHost"kom --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
-
+if [ "$armHost"kom"$doman" == "$stathostkom" ]; then
+    echo "$armHost"kom exist
 else
-ald-admin host-add "$aldHost"kom --host-desc="$aldHost"kom --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
-
+ald-admin host-add "$armHost"kom --host-desc="$armHost"kom --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
 fi
+
+for i in ${num[*]}; do
+host="$kvsHost""$i"
+stathost="$(ald-admin host-list | grep -x "$host""$doman")"
+echo "$host" !!!!!!!!!!!!!!!!!
+
+if [ "$host""$doman" == "$stathost" ]; then
+    echo "$host" exist
+else
+ald-admin host-add "$host" --host-desc="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+fi
+done
+
+for item in ${user[*]}; do
+    for i in ${num[*]}; do
+    host="$kvsHost""$i"
+    ald-admin user-ald-cap "$item" --add-hosts --host="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+    done
+done
+
+for item in ${user[*]}; do
+    for i in ${num[*]}; do
+    host="$armHost""$i"
+    ald-admin user-ald-cap "$item" --add-hosts --host="$host" --force --verbose --pass-file=/etc/ald/pass.pass --admin=admin/admin
+    done
+done
