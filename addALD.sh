@@ -370,14 +370,14 @@ function AddUserInHost {
 function main {
 
     InstallUtil
-    # PassFile
-    # AldConfig
-    # StatusAld
-    # AddPolicy
-    # AddUser
-    # AddUserTr
-    # AddHosts
-    # AddUserInHost
+    PassFile
+    AldConfig
+    StatusAld
+    AddPolicy
+    AddUser
+    AddUserTr
+    AddHosts
+    AddUserInHost
 }
 
 main
