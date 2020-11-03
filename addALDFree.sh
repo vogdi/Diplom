@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-
+# -*- coding: utf-8 -*-
 user=(secadmin komandir operator1 operator2 operator3 deshifrovshik1 deshifrovshik2 deshifrovshik3 shturman nachraz) 
 usertr=(komandir_tr operator1_tr operator2_tr operator3_tr deshifrovshik1_tr deshifrovshik2_tr deshifrovshik3_tr shturman_tr nachraz_tr)
 aldHomedir="/var/run/ald_home"
 grouptr="TrainingUsers"
-module="npo"
+# module="npo"
 armHost="$module"-arm
 kvsHost="$module"-kvs
 num=(01 02 03 04)
@@ -12,7 +12,9 @@ doman=".orion"
 PublicFolderPath="/ald_export_home/publicfolder"
 aldPass="--pass-file=/etc/ald/pass.pass"
 aldAdmin="--admin=admin/admin"
-serverHost="$module"-storage"$doman"
+serverHost=
+host=()
+
 
 function InstallUtil {
 utils=(rpcbind 
@@ -60,6 +62,12 @@ done
 }
 
 function AldConfig {
+if [ -e "/etc/ald/ald.conf" ]; then
+
+    echo exists
+    rm /etc/ald/ald.conf
+fi
+
 exec 3>/etc/ald/ald.conf
 aldConfig=( "# This is a config file for Astra Linux Directory (ald) server and client.
 # If values are altered - the following command should be invoked to update
@@ -309,29 +317,9 @@ function AddUserTr {
 }
 
 function AddHosts {
-    local host
+    #local host
     local stathost
-    local stathostkom
-    for i in ${num[*]}; do
-        host="$armHost""$i"
-        stathost="$(ald-admin host-list | grep -x "$host""$doman")"
-        echo "$host" !!!!!!!!!!!!!!!!!
-
-        if [ "$host""$doman" == "$stathost" ]; then
-            echo "$host" exist
-         else
-            ald-admin host-add "$host" --host-desc="$host" --force --verbose "$aldPass" "$aldAdmin"
-        fi
-    done
-    stathostkom="$(ald-admin host-list | grep -x "$armHost"kom"$doman")"
-    if [ "$armHost"kom"$doman" == "$stathostkom" ]; then
-        echo "$armHost"kom exist    
-     else
-        ald-admin host-add "$armHost"kom --host-desc="$armHost"kom --force --verbose "$aldPass" "$aldAdmin"
-    fi
-
-    for i in ${num[*]}; do
-        host="$kvsHost""$i"
+    for i in $host; do
         stathost="$(ald-admin host-list | grep -x "$host""$doman")"
         echo "$host" !!!!!!!!!!!!!!!!!
 
@@ -344,17 +332,15 @@ function AddHosts {
 }
 
 function AddUserInHost {
-    local host
+
     for item in ${user[*]}; do
-        for i in ${num[*]}; do
-            host="$kvsHost""$i"
+        for i in $host; do
             ald-admin user-ald-cap "$item" --add-hosts --host="$host" --force --verbose "$aldPass" "$aldAdmin"
         done
     done
 
-    for item in ${user[*]}; do
-        for i in ${num[*]}; do
-            host="$armHost""$i"
+    for item in ${usertr[*]}; do
+       for i in $host; do
             ald-admin user-ald-cap "$item" --add-hosts --host="$host" --force --verbose "$aldPass" "$aldAdmin"
         done
     done
@@ -365,14 +351,17 @@ function AddUserInHost {
 function main {
 
     InstallUtil
-    PassFile
-    AldConfig
-    StatusAld
-    AddPolicy
-    AddUser
-    AddUserTr
+     PassFile
+     AldConfig
+     StatusAld
+     AddPolicy
+     AddUser
+     AddUserTr
     AddHosts
     AddUserInHost
 }
+read  -r -p "Введите имя сервера ALD: " serverHost
 
+echo "Введите имена клиентов ald через пробел: "
+read  -a  host
 main
